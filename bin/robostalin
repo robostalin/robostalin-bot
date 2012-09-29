@@ -16,7 +16,7 @@ bot = Cinch::Bot.new do
   on :message, "reload plugins" do |m|
     bot.plugins.unregister_all
 
-    Dir[APP_ROOT + 'plugins/*.rb'].each do |plugin|
+    Dir[APP_ROOT + 'plugins/*/*.rb'].each do |plugin|
       load plugin
       plugin_class = constantize(camelize(File.basename(plugin, '.rb')))
       bot.plugins.register_plugin(plugin_class)
