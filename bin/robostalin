@@ -7,21 +7,25 @@ $LOAD_PATH << (APP_ROOT+'lib').to_s
 require 'active_support_lite'
 require 'cinch'
 
+module RoboStalin
+  def self.fetch_plugins
+    Dir[APP_ROOT + 'plugins/*/*.rb'].map do |plugin|
+      load plugin
+      constantize(camelize(File.basename(plugin, '.rb')))
+    end
+  end
+end
+
 bot = Cinch::Bot.new do
   configure do |c|
     c.server = "irc.synirc.org"
     c.channels = ["#robostalin"]
+    c.plugins.plugins = RoboStalin.fetch_plugins
   end
 
   on :message, "reload plugins" do |m|
     bot.plugins.unregister_all
-
-    Dir[APP_ROOT + 'plugins/*/*.rb'].each do |plugin|
-      load plugin
-      plugin_class = constantize(camelize(File.basename(plugin, '.rb')))
-      bot.plugins.register_plugin(plugin_class)
-    end
-
+    bot.plugins.register_plugins(RoboStalin.fetch_plugins)
     m.reply "Plugins reloaded."
   end
 end
