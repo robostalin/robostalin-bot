@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+APP_ROOT = Pathname.new(File.expand_path(File.join(File.dirname(__FILE__), '..')))
+$LOAD_PATH << (APP_ROOT+'lib').to_s
+
+require 'active_support_lite'
+require 'cinch'
+
+bot = Cinch::Bot.new do
+  configure do |c|
+    c.server = "irc.synirc.org"
+    c.channels = ["#robostalin"]
+  end
+
+  on :message, "reload plugins" do |m|
+    bot.plugins.unregister_all
+
+    Dir[APP_ROOT + 'plugins/*.rb'].each do |plugin|
+      load plugin
+      plugin_class = constantize(camelize(File.basename(plugin, '.rb')))
+      bot.plugins.register_plugin(plugin_class)
+    end
+
+    m.reply "Plugins reloaded."
+  end
+end
+
+bot.start
