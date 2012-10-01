@@ -10,16 +10,23 @@ PID_FILE = '/var/run/robostalin.pid'
 
 require 'fileutils'
 
+def start
+  system "sudo -u git #{DAEMON} #{PID_FILE}" unless File.exist? PID_FILE
+end
+
+def stop
+  Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
+  FileUtils.rm(PID_FILE, :force => true)
+end
+
 case ARGV.first
 when 'start'
-  system "sudo -u git #{DAEMON} #{PID_FILE}" unless File.exist? PID_FILE
+  start
 when 'stop'
-  Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
-  FileUtils.rm(PID_FILE, :force => true)
+  stop
 when 'restart'
-  Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
-  FileUtils.rm(PID_FILE, :force => true)
-  system "sudo -u git #{DAEMON} #{PID_FILE}"
+  stop
+  start
 else
   unless %w{start stop restart}.include? ARGV.first
     puts "Usage: #{APP_NAME} {start|stop|restart}"
