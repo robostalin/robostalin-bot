@@ -12,14 +12,14 @@ require 'fileutils'
 
 case ARGV.first
 when 'start'
-  system "#{DAEMON} #{PID_FILE}" unless File.exist? PID_FILE
+  system "sudo -u git #{DAEMON} #{PID_FILE}" unless File.exist? PID_FILE
 when 'stop'
   Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
   FileUtils.rm(PID_FILE, :force => true)
 when 'restart'
   Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
   FileUtils.rm(PID_FILE, :force => true)
-  system "#{DAEMON} #{PID_FILE}"
+  system "sudo -u git #{DAEMON} #{PID_FILE}"
 else
   unless %w{start stop restart}.include? ARGV.first
     puts "Usage: #{APP_NAME} {start|stop|restart}"
