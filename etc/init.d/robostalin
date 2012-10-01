@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+#
+# robostalin      This is a startup script for use in /etc/init.d
+#
+# chkconfig:    2345 80 20
+# description:  RoboStalin IRC bot
+APP_NAME = 'robostalin'
+DAEMON   = "/apps/robostalin-bot/bin/#{APP_NAME}"
+PID_FILE = '/var/run/robostalin.pid'
+
+require 'fileutils'
+
+case ARGV.first
+when 'start'
+  system "#{DAEMON} #{PID_FILE}" unless File.exist? PID_FILE
+when 'stop'
+  Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
+  FileUtils.rm(PID_FILE, :force => true)
+when 'restart'
+  Process.kill('TERM', File.read(PID_FILE).chomp.to_i) if File.exist? PID_FILE
+  FileUtils.rm(PID_FILE, :force => true)
+  system "#{DAEMON} #{PID_FILE}"
+else
+  unless %w{start stop restart}.include? ARGV.first
+    puts "Usage: #{APP_NAME} {start|stop|restart}"
+    exit
+  end
+end

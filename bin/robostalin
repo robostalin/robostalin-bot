@@ -30,4 +30,11 @@ bot = Cinch::Bot.new do
   end
 end
 
+if pidfile = ARGV.pop
+  Process.daemon(true)
+  File.open(pidfile, 'w') do |file|
+    file.puts Process.pid
+  end
+end
+
 bot.start
